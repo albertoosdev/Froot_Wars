@@ -54,4 +54,9 @@ var game = {
         game.canvas = $('#gamecanvas')[0];
         game.context = game.canvas.getContext('2d');
     },
+    
+    showLevelScreen:function(){
+        $('.gamelayer').hide();
+        $('#levelselectscreen').show('slow');
+    },
 }
