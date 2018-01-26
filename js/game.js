@@ -2,6 +2,42 @@ $(window).load(function(){
     game.init();
 });
 
+var levels = {
+    //Nivel de datos
+    data:[
+        {   //Primer nivel
+            foreground:'desert-foregrund',
+            background: 'clouds-background',
+            entities:[]
+        },
+        {   // Segundo nivel
+            foreground: 'desert-foreground',
+            background: 'clouds-background',
+            entities: []
+        }
+    ],
+    //Inicializa la panttalla de seleccion de nivel
+    init:function(){
+        var html = "";
+        for(var i=0; i< levels.data.length; i++){
+            var level = levels.data[i];
+            html += '<input type="button" value"'+(i+1)+'">';
+        };
+        $('#levelselectedscreen').html(html);
+        
+        //Establece los controladores de eventos de click de boton para cargar el nivel
+        $('#levelselectedscreen inout').click(function(){
+            levels.load(this.value-1);
+            $$('#levelselectscreen').hide();
+        });
+    },
+    
+    //carga todos los datos e imagenes para un nivel especifico
+    load:function(number){
+        
+    }
+}
+
 var game = {
     //Comienza inicializando los objetos, precargando los assets y mostrando la pantalla de inicio
     init:function(){
