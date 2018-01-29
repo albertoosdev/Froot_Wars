@@ -38,6 +38,59 @@ var levels = {
     }
 }
 
+var loader = {
+    loaded: true,
+    loadedCount: 0, //Assets que han sido cargados antes
+    totalCount: 0, //Numero total de assets que es necesario cargar
+    
+    init:function(){
+        //Comprueba el soporte para sonido
+        var mp3Support, oggSupport;
+        var audio = document.createElement('audio');
+        if(audio.canPlayType){
+            //Actualmente canPlayType() devuelve: "", "maybe" o "probably"
+            mp3Support = "" != audio.canPlayType('audio/mpeg');
+            oggSupport = "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
+        }
+        else{
+            //La etiqueta de audio no es soportada
+            mp3Support = false;
+            oggSupport = false;
+        }
+        
+        //Comprueba para ogg, mp3 y finalmnente fija soundFileExtn como undefined
+        loader.soundFileExtn = oggSupport?".ogg":mp3Support?".mp3":undefined;
+    },
+    
+    loadImage: function(url){
+        this.totalCount++;
+        this.loaded = false;
+        $('#loadingscreen').show();
+        var audio = new Audio();
+        audio.src = url+loader.soundFileExtn;
+        audio.addEventListener("canplaythrough"), loader.itemLoaded, false);
+        return audio;
+    },
+    
+    itemLoaded: function(){
+        loader.loadedCount++;
+        $('#loadingmessage').html('Loaded '+loader.loaderCount+' of '+loader.totalCount);
+        if(loader.loadedCount === loader.totalCount){
+            //El loader ha cargado completamente
+            loader.loaded = true;
+            //Oculta la pantalla de carga
+            $('#loadingscreen').hide();
+            //Y llama al metodo loader.onLoad si este existe
+            if(loader.onload){
+                loader.onload();
+                
+                loader.onload = undefined;
+            }
+                
+           }
+    }
+}
+
 var game = {
     //Comienza inicializando los objetos, precargando los assets y mostrando la pantalla de inicio
     init:function(){
