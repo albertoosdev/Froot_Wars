@@ -24,12 +24,12 @@ var levels = {
         var i;
         for (i = 0; i < levels.data.length; i++) {
             var level = levels.data[i];
-            html += '<input type="button" value"' + (i + 1) + '">';
-        }
-        $('#levelselectedscreen').html(html);
+            html += '<input type="button" value="' + (i + 1) + '">';
+        };
+        $('#levelselectscreen').html(html);
         
         //Establece los controladores de eventos de click de boton para cargar el nivel
-        $('#levelselectedscreen inout').click(function () {
+        $('#levelselectedscreen input').click(function () {
             levels.load(this.value - 1);
             $('#levelselectscreen').hide();
         });
@@ -37,7 +37,24 @@ var levels = {
     
     //carga todos los datos e imagenes para un nivel especifico
     load: function (number) {
-        
+        //declarar un nuevo objeto del nivel actual
+        game.currentLevel = {number:number,hero:[]};
+        game.score=0;
+        $('#score').html('Score: ' + game.score);
+        var level = levels.data[number];
+
+        //Cargar el fondo, el primer plano y las imagenes de la honda
+        game.currentLevel.backgroundImage = loader.loadImage("images/backgrounds/"+level.background+".png");
+        game.currentLevel.foregroundImage = loader.loadImage("images/backgrounds/"+level.foreground+".png");
+        game.slingshotImage = loader.loadImage("images/slingshot.png");
+        game.slingshotFrontImage = loader.loadImage("images/slingshot-front.png");
+
+        //Llamar a game.start() cuando los assets se hayan cargado
+        if(loader.loaded){
+            game.start();
+        } else {
+            loader.onload = game.start;
+        }
     }
 };
 
@@ -52,8 +69,8 @@ var loader = {
         var audio = document.createElement('audio');
         if (audio.canPlayType) {
             //Actualmente canPlayType() devuelve: "", "maybe" o "probably"
-            mp3Support = "" !== audio.canPlayType('audio/mpeg');
-            oggSupport = "" !== audio.canPlayType('audio/ogg; codecs="vorbis"');
+            mp3Support = "" != audio.canPlayType('audio/mpeg');
+            oggSupport = "" != audio.canPlayType('audio/ogg; codecs="vorbis"');
         } else {
             //La etiqueta de audio no es soportada
             mp3Support = false;
@@ -68,12 +85,23 @@ var loader = {
         this.totalCount++;
         this.loaded = false;
         $('#loadingscreen').show();
+        var image = new Image();
+        image.src = url;
+        image.onload = loader.itemLoaded;
+        return image;
+    },
+    
+    soundFileExtn:".ogg",
+    loadSound: function (url){
+        this.totalCount++;
+        this.loaded = false;
+        $('#loadingscreen').show();
         var audio = new Audio();
         audio.src = url + loader.soundFileExtn;
         audio.addEventListener("canplaythrough", loader.itemLoaded, false);
         return audio;
     },
-    
+
     itemLoaded: function () {
         loader.loadedCount++;
         $('#loadingmessage').html('Loaded ' + loader.loaderCount + ' of ' + loader.totalCount);
@@ -91,6 +119,8 @@ var loader = {
                 
         }
     }
+
+    
 };
 
 var game = {
@@ -103,7 +133,7 @@ var game = {
         
         //Oculta todas las capas del juego y muestra la pantalla de inicio
         $('.gamelayer').hide();
-        $('.gamestartscreen').show();
+        $('#gamestartscreen').show();
         
         //Obtener el controlador para el canvas y el contexto del juego
         game.canvas = $('#gamecanvas')[0];
