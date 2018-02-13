@@ -1,5 +1,30 @@
 "use strict";
 
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x){
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = 
+            window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element){
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(9, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function(){ callback(currTime + timeToCall);},
+                timeToCall);
+            lasTime = currTime + timeToCall;
+            return id
+        };
+    
+        if(!window.cancelAnimationFrame)
+            window.cancelAnimationFrame = function(id) {
+                clearTimeout(id);
+            };
+}());
+
 $(window).load(function () {
     game.init();
 });
@@ -8,7 +33,7 @@ var levels = {
     //Nivel de datos
     data: [
         {   //Primer nivel
-            foreground: 'desert-foregrund',
+            foreground: 'desert-foreground',
             background: 'clouds-background',
             entities: []
         },
@@ -29,7 +54,7 @@ var levels = {
         $('#levelselectscreen').html(html);
         
         //Establece los controladores de eventos de click de boton para cargar el nivel
-        $('#levelselectedscreen input').click(function () {
+        $('#levelselectscreen input').click(function () {
             levels.load(this.value - 1);
             $('#levelselectscreen').hide();
         });
@@ -104,7 +129,7 @@ var loader = {
 
     itemLoaded: function () {
         loader.loadedCount++;
-        $('#loadingmessage').html('Loaded ' + loader.loaderCount + ' of ' + loader.totalCount);
+        $('#loadingmessage').html('Loaded ' + loader.loadedCount + ' of ' + loader.totalCount);
         if (loader.loadedCount === loader.totalCount) {
             //El loader ha cargado completamente
             loader.loaded = true;
@@ -143,5 +168,45 @@ var game = {
     showLevelScreen: function () {
         $('.gamelayer').hide();
         $('#levelselectscreen').show('slow');
+    },
+
+    mode:"intro",
+    slingshotX:140,
+    slingshotY:280,
+    start:function(){
+        $('.gamelayer').hide();
+        //Mostrar el canvas del juego y la puntuacion
+        $('#gamecanvas').show();
+        $('#scorescreen').show();
+
+        game.mode = "intro";
+        game.offsetLeft = 0;
+        game.ended = false;
+        game.animationFrame = window.requestAnimationFrame(game.animate, game.canvas);
+    },
+
+    handlePanning: function(){
+        game.offsetLeft++;
+    },
+
+    animate:function(){
+        // Anima el fondo
+
+        game.handlePanning();
+
+        //Anima los personajes
+
+        //Dibuja el fondo con desplazamiento (parallax scrolling)
+        game.context.drawImage(game.currentLevel.backgroundImage,game.offsetLeft/4,0,640,480,0,0,640,480);
+        game.context.drawImage(game.currentLevel.foregroundImage,game.offsetLeft,0,640,480,0,0,640,480);
+        
+        // Dibuja la honda
+
+        game.context.drawImage(game.slingshotImage,game.slingshotX-game.offsetLeft,game.slingshotY);
+        game.context.drawImage(game.slingshotFrontImage,game.slingshotX-game.offsetLeft,game.slingshotY);
+
+        if(!game.ended){
+            game.animationFrame = window.requestAnimationFrame(game.animate, game.canvas);
+        }
     }
 };
