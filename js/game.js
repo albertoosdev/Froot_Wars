@@ -1,5 +1,15 @@
 "use strict";
 
+var b2Vec2 = Box2D.Common.Math.b2Vec2;
+var b2BodyDef = Box2D.Dynamics.b2BodyDef;
+var b2Body = Box2D.Dynamics.b2Body;
+var b2FixtureDef = Box2D.Dynamics.b2FixtureDef;
+var b2Fixture = Box2D.Dynamics.b2Fixture;
+var b2World = Box2D.Dynamics.b2World;
+var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
+var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
+var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+
 (function() {
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];
@@ -12,7 +22,7 @@
     if (!window.requestAnimationFrame)
         window.requestAnimationFrame = function(callback, element){
             var currTime = new Date().getTime();
-            var timeToCall = Math.max(9, 16 - (currTime - lastTime));
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
             var id = window.setTimeout(function(){ callback(currTime + timeToCall);},
                 timeToCall);
             lasTime = currTime + timeToCall;
@@ -67,18 +77,53 @@ var mouse = {
 }
 var levels = {
     //Nivel de datos
-    data: [
-        {   //Primer nivel
-            foreground: 'desert-foreground',
-            background: 'clouds-background',
-            entities: []
+    data:[
+        {// First level
+           foreground:'desert-foreground',
+           background:'clouds-background',
+           entities:[
+               {type:"ground", name:"dirt", x:500,y:440,width:1000,height:20,isStatic:true},
+               {type:"ground", name:"wood", x:185,y:390,width:30,height:80,isStatic:true},
+   
+               {type:"block", name:"wood", x:520,y:380,angle:90,width:100,height:25},
+               {type:"block", name:"glass", x:520,y:280,angle:90,width:100,height:25},
+               {type:"villain", name:"burger",x:520,y:205,calories:590},
+   
+               {type:"block", name:"wood", x:620,y:380,angle:90,width:100,height:25},
+               {type:"block", name:"glass", x:620,y:280,angle:90,width:100,height:25},
+               {type:"villain", name:"fries", x:620,y:205,calories:420},
+   
+               {type:"hero", name:"orange",x:80,y:405},
+               {type:"hero", name:"apple",x:140,y:405},
+           ]
         },
-        {   // Segundo nivel
-            foreground: 'desert-foreground',
-            background: 'clouds-background',
-            entities: []
-        }
-    ],
+           {   // Second level
+               foreground:'desert-foreground',
+               background:'clouds-background',
+               entities:[
+                   {type:"ground", name:"dirt", x:500,y:440,width:1000,height:20,isStatic:true},
+                   {type:"ground", name:"wood", x:185,y:390,width:30,height:80,isStatic:true},
+   
+                   {type:"block", name:"wood", x:820,y:380,angle:90,width:100,height:25},
+                   {type:"block", name:"wood", x:720,y:380,angle:90,width:100,height:25},
+                   {type:"block", name:"wood", x:620,y:380,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:670,y:317.5,width:100,height:25},
+                   {type:"block", name:"glass", x:770,y:317.5,width:100,height:25},
+   
+                   {type:"block", name:"glass", x:670,y:255,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:770,y:255,angle:90,width:100,height:25},
+                   {type:"block", name:"wood", x:720,y:192.5,width:100,height:25},
+   
+                   {type:"villain", name:"burger",x:715,y:155,calories:590},
+                   {type:"villain", name:"fries",x:670,y:405,calories:420},
+                   {type:"villain", name:"sodacan",x:765,y:400,calories:150},
+   
+                   {type:"hero", name:"strawberry",x:30,y:415},
+                   {type:"hero", name:"orange",x:80,y:405},
+                   {type:"hero", name:"apple",x:140,y:405},
+               ]
+           }
+       ],
     //Inicializa la panttalla de seleccion de nivel
     init: function () {
         var html = "";
@@ -98,6 +143,9 @@ var levels = {
     
     //carga todos los datos e imagenes para un nivel especifico
     load: function (number) {
+
+        //Declarar un nuevo objeto de nivel actual
+        box2d.init();
         //declarar un nuevo objeto del nivel actual
         game.currentLevel = {number:number,hero:[]};
         game.score=0;
@@ -109,6 +157,12 @@ var levels = {
         game.currentLevel.foregroundImage = loader.loadImage("images/backgrounds/"+level.foreground+".png");
         game.slingshotImage = loader.loadImage("images/slingshot.png");
         game.slingshotFrontImage = loader.loadImage("images/slingshot-front.png");
+        
+        //Cargar todas las entidades
+        for(var i = level.entities.length -1; i >= 0; i--){
+            var entity = level.entities[i];
+            entities.create(entity);
+        }
 
         //Llamar a game.start() cuando los assets se hayan cargado
         if(loader.loaded){
@@ -118,6 +172,196 @@ var levels = {
         }
     }
 };
+
+var entities = {
+    definitions:{
+        "glass":{
+			fullHealth:100,
+			density:2.4,
+			friction:0.4,
+			restitution:0.15,
+		},
+		"wood":{
+			fullHealth:500,
+			density:0.7,
+			friction:0.4,
+			restitution:0.4,
+		},
+		"dirt":{
+			density:3.0,
+			friction:1.5,
+			restitution:0.2,
+		},
+		"burger":{
+			shape:"circle",
+			fullHealth:40,
+			radius:25,
+			density:1,
+			friction:0.5,
+			restitution:0.4,
+		},
+		"sodacan":{
+			shape:"rectangle",
+			fullHealth:80,
+			width:40,
+			height:60,
+			density:1,
+			friction:0.5,
+			restitution:0.7,
+		},
+		"fries":{
+			shape:"rectangle",
+			fullHealth:50,
+			width:40,
+			height:50,
+			density:1,
+			friction:0.5,
+			restitution:0.6,
+		},
+		"apple":{
+			shape:"circle",
+			radius:25,
+			density:1.5,
+			friction:0.5,
+			restitution:0.4,
+		},
+		"orange":{
+			shape:"circle",
+			radius:25,
+			density:1.5,
+			friction:0.5,
+			restitution:0.4,
+		},
+		"strawberry":{
+			shape:"circle",
+			radius:15,
+			density:2.0,
+			friction:0.5,
+			restitution:0.4,
+		},
+    },
+
+    create:function(entity){
+
+    },
+
+    draw:function(entity, position, angle){
+
+    }
+};
+
+var box2d = {
+	scale:30,
+	init:function(){
+		// Configurar el mundo de box2d que hará la mayoría de los cálculos fisicos
+		var gravity = new b2Vec2(0,9.8); 
+		var allowSleep = true; //Permitir que los objetos que estám em reposo se queden dormidos y se excluyan de los calculos
+		box2d.world = new b2World(gravity,allowSleep);
+    },
+
+    createRectangle:function(entity, definition){
+        var bodyDef = new b2BodyDef;
+        if(entity.isStatic){
+            bodyDef.type = b2Body.b2_staticBody;
+        } else {
+            bodyDef.type = b2Body.b2_dynamicBody;
+        }
+
+        bodyDef.position.x = entity.x/box2d.scale;
+        bodyDef.position.y = entity.y/box2d.scale;
+        if(entity.angle){
+            bodyDef.angle = Math.PI*entity.angle/180;
+        }
+
+        var fixtureDef = new b2FixtureDef;
+        fixtureDef.density = definition.density;
+        fixtureDef.friction = definition.friction;
+        fixtureDef.restitution = definition.restitution;
+
+        fixtureDef.shape = new b2PolygonShape;
+        fixtureDef.shape.SetAsBox(entity.width/2/box2d.scale,entity.height/2/box2d.scale);
+
+        var body = box2d.world.CreateBody(bodyDef);
+        body.setUserData(entity);
+
+        var fixture = body.CreateFixture(fixtureDef)
+        return body;
+    },
+    createCircle:function(entity,definition){
+        var bodyDef = new b2BodyDef;
+        if(entity.isStatic){
+            bodyDef.type = b2Body.b2_staticBody;
+        } else {
+            bodyDef.type = b2Body.b2_dynamicBody;
+        }
+
+        bodyDef.position.x = entity.x/box2d.scale;
+        bodyDef.position.y = entity.y/box2d.scale;
+
+        if (entity.angle) {
+            bodyDef.angle = Math.PI*entity.angle/180;
+        }
+        var fixtureDef = new b2FixtureDef;
+        fixtureDef.density = definition.density;
+        fixtureDef.friction = definition.friction;
+        fixtureDef.restitution = definition.restitution;
+
+        fixtureDef.shape = new b2CircleShape(entity.radius/box2d.scale);
+
+        var body = box2d.world.CreateBody(bodyDef);
+        body.SetUserData(entity);
+
+        var fixture = body.CreateFixture(fixtureDef);
+        return body;
+    },
+
+    //tomar la entidad, crear un cuerpo box2d y añadirlo al mundo
+    create:function(entity){
+		var definition = entities.definitions[entity.name];
+		if(!definition){
+			console.log ("Undefined entity name",entity.name);
+			return;
+		}
+		switch(entity.type){
+			case "block": // simple rectangles
+				entity.health = definition.fullHealth;
+				entity.fullHealth = definition.fullHealth;
+				entity.shape = "rectangle";
+				entity.sprite = loader.loadImage("images/entities/"+entity.name+".png");
+				entity.breakSound = game.breakSound[entity.name];
+				box2d.createRectangle(entity,definition);
+				break;
+			case "ground": // simple rectangles
+				// No need for health. These are indestructible
+				entity.shape = "rectangle";
+				// No need for sprites. These won't be drawn at all
+				box2d.createRectangle(entity,definition);
+				break;
+			case "hero":	// simple circles
+			case "villain": // can be circles or rectangles
+				entity.health = definition.fullHealth;
+				entity.fullHealth = definition.fullHealth;
+				entity.sprite = loader.loadImage("images/entities/"+entity.name+".png");
+				entity.shape = definition.shape;
+				entity.bounceSound = game.bounceSound;
+				if(definition.shape == "circle"){
+					entity.radius = definition.radius;
+					box2d.createCircle(entity,definition);
+				} else if(definition.shape == "rectangle"){
+					entity.width = definition.width;
+					entity.height = definition.height;
+					box2d.createRectangle(entity,definition);
+				}
+				break;
+			default:
+				console.log("Undefined entity type",entity.type);
+				break;
+		}
+	}
+
+};
+
+
 
 var loader = {
     loaded: true,
