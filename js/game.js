@@ -618,13 +618,19 @@ var game = {
 					game.mode = "wait-for-firing";
 				}
 			}
-            game.mode = "wait-for-firing";
         }
         
         if(game.mode=="firing"){
             if(mouse.down){
                 game.panTo(game.slingshotX);
-                game.currentHero.SetPosition({x:(mouse.x+game.offsetLeft)/box2d.scale,y:mouse.y/box2d.scale});
+				var distance = Math.sqrt(Math.pow(mouse.x-mouse.downX,2) + Math.pow(mouse.y-mouse.downY,2));
+				var maxDistance = 130;
+				if (maxDistance > distance){
+					game.currentHero.SetPosition({x:(mouse.x+game.offsetLeft)/box2d.scale,y:mouse.y/box2d.scale});
+				} else {
+					var angle = Math.atan2(mouse.y-mouse.downY,mouse.x-mouse.downX);
+					game.currentHero.SetPosition({x:(mouse.downX + maxDistance * Math.cos(angle)+game.offsetLeft)/box2d.scale,y:(mouse.downY + maxDistance * Math.sin(angle))/box2d.scale});
+				}
             } else {
 				game.mode = "fired";
 				//game.slingshotReleasedSound.play();
@@ -636,6 +642,8 @@ var game = {
 				var impulse = new b2Vec2((slingshotCenterX -mouse.x-game.offsetLeft)*impulseScaleFactor,(slingshotCenterY-mouse.y)*impulseScaleFactor);
 				game.currentHero.ApplyImpulse(impulse,game.currentHero.GetWorldCenter());
 
+                game.currentHero.SetAngularDamping(0.5);
+				game.currentHero.SetLinearDamping(0.1);
 			}
         }
         
