@@ -1,5 +1,3 @@
-"use strict";
-
 var b2Vec2 = Box2D.Common.Math.b2Vec2;
 var b2BodyDef = Box2D.Dynamics.b2BodyDef;
 var b2Body = Box2D.Dynamics.b2Body;
@@ -12,12 +10,13 @@ var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
 (function() {
     var lastTime = 0;
-    var vendors = ['ms', 'moz', 'webkit', 'o'];
-    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x){
-        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = 
-            window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
-    }
+	var vendors = ['ms', 'moz', 'webkit', 'o'];
+	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x){
+		window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+		window.cancelAnimationFrame =
+		  window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+	}
+
 
     if (!window.requestAnimationFrame)
         window.requestAnimationFrame = function(callback, element){
@@ -25,8 +24,8 @@ var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
             var timeToCall = Math.max(0, 16 - (currTime - lastTime));
             var id = window.setTimeout(function(){ callback(currTime + timeToCall);},
                 timeToCall);
-            lasTime = currTime + timeToCall;
-            return id
+            lastTime = currTime + timeToCall;
+            return id;
         };
     
         if(!window.cancelAnimationFrame)
@@ -78,7 +77,7 @@ var mouse = {
 var levels = {
     //Nivel de datos
     data:[
-        {// First level
+        {// Primer nivel
            foreground:'desert-foreground',
            background:'clouds-background',
            entities:[
@@ -97,7 +96,7 @@ var levels = {
                {type:"hero", name:"apple",x:140,y:405},
            ]
         },
-           {   // Second level
+           {   // Segundo nivel
                foreground:'desert-foreground',
                background:'clouds-background',
                entities:[
@@ -150,6 +149,7 @@ var levels = {
         game.currentLevel = {number:number,hero:[]};
         game.score=0;
         $('#score').html('Score: ' + game.score);
+        game.currentHero = undefined;
         var level = levels.data[number];
 
         //Cargar el fondo, el primer plano y las imagenes de la honda
@@ -162,7 +162,7 @@ var levels = {
         for(var i = level.entities.length -1; i >= 0; i--){
             var entity = level.entities[i];
             entities.create(entity);
-        }
+        };
 
         //Llamar a game.start() cuando los assets se hayan cargado
         if(loader.loaded){
@@ -241,13 +241,76 @@ var entities = {
 		},
     },
 
+    //tomar la entidad, crear un cuerpo box2d y añadirlo al mundo
     create:function(entity){
-
-    },
+		var definition = entities.definitions[entity.name];
+		if(!definition){
+			console.log ("Undefined entity name",entity.name);
+			return;
+		}
+		switch(entity.type){
+			case "block": // Rectangulos simples
+				entity.health = definition.fullHealth;
+				entity.fullHealth = definition.fullHealth;
+				entity.shape = "rectangle";
+				entity.sprite = loader.loadImage("images/entities/"+entity.name+".png");
+				//entity.breakSound = game.breakSound[entity.name];
+				box2d.createRectangle(entity,definition);
+				break;
+			case "ground": // Rectangulos simples
+				// No necesitan vida, son indestructibles
+				entity.shape = "rectangle";
+				// No necesitan sprites, no serán dibujados
+				box2d.createRectangle(entity,definition);
+				break;
+			case "hero":	// Circulos simples
+			case "villain": // Pueden ser círculoso rectángulos
+				entity.health = definition.fullHealth;
+				entity.fullHealth = definition.fullHealth;
+				entity.sprite = loader.loadImage("images/entities/"+entity.name+".png");
+				entity.shape = definition.shape;
+				entity.bounceSound = game.bounceSound;
+				if(definition.shape == "circle"){
+					entity.radius = definition.radius;
+					box2d.createCircle(entity,definition);
+				} else if(definition.shape == "rectangle"){
+					entity.width = definition.width;
+					entity.height = definition.height;
+					box2d.createRectangle(entity,definition);
+				}
+				break;
+			default:
+				console.log("Undefined entity type",entity.type);
+				break;
+		}
+	},
 
     draw:function(entity, position, angle){
+        game.context.translate(position.x*box2d.scale-game.offsetLeft,position.y*box2d.scale);
+		game.context.rotate(angle);
+		switch (entity.type){
+			case "block":
+				game.context.drawImage(entity.sprite,0,0,entity.sprite.width,entity.sprite.height,
+						-entity.width/2-1,-entity.height/2-1,entity.width+2,entity.height+2);
+			break;
+			case "villain":
+			case "hero":
+				if (entity.shape=="circle"){
+					game.context.drawImage(entity.sprite,0,0,entity.sprite.width,entity.sprite.height,
+							-entity.radius-1,-entity.radius-1,entity.radius*2+2,entity.radius*2+2);
+				} else if (entity.shape=="rectangle"){
+					game.context.drawImage(entity.sprite,0,0,entity.sprite.width,entity.sprite.height,
+							-entity.width/2-1,-entity.height/2-1,entity.width+2,entity.height+2);
+				}
+				break;
+			case "ground":
+				// No hacer nada ... Vamos a dibujar objetos como el suelo y la horda por separado
+				break;
+		}
 
-    }
+		game.context.rotate(-angle);
+		game.context.translate(-position.x*box2d.scale+game.offsetLeft,-position.y*box2d.scale);
+	}
 };
 
 var box2d = {
@@ -256,7 +319,40 @@ var box2d = {
 		// Configurar el mundo de box2d que hará la mayoría de los cálculos fisicos
 		var gravity = new b2Vec2(0,9.8); 
 		var allowSleep = true; //Permitir que los objetos que estám em reposo se queden dormidos y se excluyan de los calculos
-		box2d.world = new b2World(gravity,allowSleep);
+        box2d.world = new b2World(gravity,allowSleep);
+        
+        // Configurar la depuración del dibujo
+        var debugContext = document.getElementById('debugcanvas').getContext('2d');
+		var debugDraw = new b2DebugDraw();
+		debugDraw.SetSprite(debugContext);
+		debugDraw.SetDrawScale(box2d.scale);
+		debugDraw.SetFillAlpha(0.3);
+		debugDraw.SetLineThickness(1.0);
+		debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        box2d.world.SetDebugDraw(debugDraw);
+        
+        var listener = new Box2D.Dynamics.b2ContactListener;
+		listener.PostSolve = function(contact,impulse){
+			var body1 = contact.GetFixtureA().GetBody();
+			var body2 = contact.GetFixtureB().GetBody();
+			var entity1 = body1.GetUserData();
+			var entity2 = body2.GetUserData();
+
+			var impulseAlongNormal = Math.abs(impulse.normalImpulses[0]);
+			// Este listener es llamado con mucha frecuencia. Filtra los impulsos muy pequeños
+			// Después de probar diferentes valores, 5 parece funcionar bien
+			if(impulseAlongNormal>5){
+				// Si los objetos tienen una salud, reduzca la salud por el valor del impulso
+				if (entity1.health){
+					entity1.health -= impulseAlongNormal;
+				}
+
+				if (entity2.health){
+					entity2.health -= impulseAlongNormal;
+				}
+			}
+		};
+		box2d.world.SetContactListener(listener);
     },
 
     createRectangle:function(entity, definition){
@@ -282,7 +378,7 @@ var box2d = {
         fixtureDef.shape.SetAsBox(entity.width/2/box2d.scale,entity.height/2/box2d.scale);
 
         var body = box2d.world.CreateBody(bodyDef);
-        body.setUserData(entity);
+        body.SetUserData(entity);
 
         var fixture = body.CreateFixture(fixtureDef)
         return body;
@@ -315,49 +411,14 @@ var box2d = {
         return body;
     },
 
-    //tomar la entidad, crear un cuerpo box2d y añadirlo al mundo
-    create:function(entity){
-		var definition = entities.definitions[entity.name];
-		if(!definition){
-			console.log ("Undefined entity name",entity.name);
-			return;
-		}
-		switch(entity.type){
-			case "block": // simple rectangles
-				entity.health = definition.fullHealth;
-				entity.fullHealth = definition.fullHealth;
-				entity.shape = "rectangle";
-				entity.sprite = loader.loadImage("images/entities/"+entity.name+".png");
-				entity.breakSound = game.breakSound[entity.name];
-				box2d.createRectangle(entity,definition);
-				break;
-			case "ground": // simple rectangles
-				// No need for health. These are indestructible
-				entity.shape = "rectangle";
-				// No need for sprites. These won't be drawn at all
-				box2d.createRectangle(entity,definition);
-				break;
-			case "hero":	// simple circles
-			case "villain": // can be circles or rectangles
-				entity.health = definition.fullHealth;
-				entity.fullHealth = definition.fullHealth;
-				entity.sprite = loader.loadImage("images/entities/"+entity.name+".png");
-				entity.shape = definition.shape;
-				entity.bounceSound = game.bounceSound;
-				if(definition.shape == "circle"){
-					entity.radius = definition.radius;
-					box2d.createCircle(entity,definition);
-				} else if(definition.shape == "rectangle"){
-					entity.width = definition.width;
-					entity.height = definition.height;
-					box2d.createRectangle(entity,definition);
-				}
-				break;
-			default:
-				console.log("Undefined entity type",entity.type);
-				break;
-		}
-	}
+    step:function(timeStep){
+        // velocidad de las iteraciones = 8
+        // posición de las iteraciones = 3
+        if(timeStep > 2/60){
+            timeStep = 2/60
+        }
+        box2d.world.Step(timeStep,8,3);
+    }
 
 };
 
@@ -435,6 +496,17 @@ var game = {
         levels.init();
         loader.init();
         mouse.init();
+
+        // Cargar todos los efectos de sonido y música de fondo
+
+        game.backgroundMusic = loader.loadSound('audio/gurdonark-kindergarten');
+
+		game.slingshotReleasedSound = loader.loadSound("audio/released");
+		game.bounceSound = loader.loadSound('audio/bounce');
+		game.breakSound = {
+			"glass":loader.loadSound('audio/glassbreak'),
+			"wood":loader.loadSound('audio/woodbreak')
+		};
         
         //Oculta todas las capas del juego y muestra la pantalla de inicio
         $('.gamelayer').hide();
@@ -447,7 +519,7 @@ var game = {
     
     showLevelScreen: function () {
         $('.gamelayer').hide();
-        $('#levelselectscreen').show('slow');
+		$('#levelselectscreen').show('slow');
     },
 
     mode:"intro",
@@ -477,23 +549,26 @@ var game = {
     
     //Desplegar la pantalla para centrarse en newCenter
     panTo: function(newCenter) {
-        if(Math.abs(newCenter-game.offsetLeft-game.canvas.width/4)>0 && game.offsetLeft<=game.maxOffset && game.offsetLeft>=game.minOffset){
-            var deltaX  = Math.round((newCenter-game.offsetLeft-game.canvas.width/4)/2);
-            if(deltaX && Math.abs(deltaX)>game.maxSpeed){
-                deltaX = game.maxSpeed*Math.abs(deltaX)/(deltaX);
-            }
-            game.offsetLeft += deltaX;
-        } else{
-            return true;
-        }
-        if(game.offsetLeft < game.minOffset) {
-            game.offsetLeft = game.minOffset;
-            return true;
-        } else if (game.offsetLeft > game.maxOffset) {
-            game.offsetLeft = game.maxOffset;
-            return true;
-        }
-        return false;
+        if (Math.abs(newCenter-game.offsetLeft-game.canvas.width/4)>0
+			&& game.offsetLeft <= game.maxOffset && game.offsetLeft >= game.minOffset){
+
+			var deltaX = Math.round((newCenter-game.offsetLeft-game.canvas.width/4)/2);
+			if (deltaX && Math.abs(deltaX)>game.maxSpeed){
+				deltaX = game.maxSpeed*Math.abs(deltaX)/(deltaX);
+			}
+			game.offsetLeft += deltaX;
+		} else {
+
+			return true;
+		}
+		if (game.offsetLeft <game.minOffset){
+			game.offsetLeft = game.minOffset;
+			return true;
+		} else if (game.offsetLeft > game.maxOffset){
+			game.offsetLeft = game.maxOffset;
+			return true;
+		}
+		return false;
     },
 
     handlePanning: function(){
@@ -504,30 +579,87 @@ var game = {
         }
         
         if(game.mode=="wait-for-firing"){
-            if(mouse.dragging){
-                game.panTo(mouse.x + game.offsetLeft)   
-            } else{
-                game.panTo(game.slingshotX);
-            }
+            if (mouse.dragging){
+				if (game.mouseOnCurrentHero()){
+					game.mode = "firing";
+
+				} else {
+					game.panTo(mouse.x + game.offsetLeft)
+				}
+			} else {
+				game.panTo(game.slingshotX);
+			}
         }
         
         if (game.mode =="load-next-hero"){
+            game.countHeroesAndVillains();
             // TODO:
             // Comprobar si algun villano está vivo, si no, terminar el nivel (exito)
+            if(game.villains.length == 0){
+                game.mode = "level-success";
+                return;
+            }
             // Comprobar si quedan más héroes para cargar, si no terminar el nivel (fallo)
+            if(game.heroes.length == 0){
+                game.mode = "level-failure";
+                return;
+            }
             // Cargar el héroe y fijar a modo de espera para disparar
+            if(!game.currentHero){
+				game.currentHero = game.heroes[game.heroes.length-1];
+				game.currentHero.SetPosition({x:180/box2d.scale,y:200/box2d.scale});
+	 			game.currentHero.SetLinearVelocity({x:0,y:0});
+	 			game.currentHero.SetAngularVelocity(0);
+				game.currentHero.SetAwake(true);
+			} else {
+				// Espere a que el heroe deje de rebotar y se duerma y luego cambie a espera para disparar
+				game.panTo(game.slingshotX);
+				if(!game.currentHero.IsAwake()){
+					game.mode = "wait-for-firing";
+				}
+			}
             game.mode = "wait-for-firing";
         }
         
         if(game.mode=="firing"){
-            game.panTo(game.slingshotX);
+            if(mouse.down){
+                game.panTo(game.slingshotX);
+                game.currentHero.SetPosition({x:(mouse.x+game.offsetLeft)/box2d.scale,y:mouse.y/box2d.scale});
+            } else {
+				game.mode = "fired";
+				//game.slingshotReleasedSound.play();
+				var impulseScaleFactor = 0.75;
+
+				// Coordenadas del centro de la honda (donde la banda está atada a la honda)
+				var slingshotCenterX = game.slingshotX + 35;
+				var slingshotCenterY = game.slingshotY+25;
+				var impulse = new b2Vec2((slingshotCenterX -mouse.x-game.offsetLeft)*impulseScaleFactor,(slingshotCenterY-mouse.y)*impulseScaleFactor);
+				game.currentHero.ApplyImpulse(impulse,game.currentHero.GetWorldCenter());
+
+			}
         }
         
         if (game.mode == "fired"){
-            //TODO:
-            // Hacer una panoramica donde quiera que el heroe se encuentre actualmente
+           //Vista panorámica donde el héroe se encuentra actualmente...
+			var heroX = game.currentHero.GetPosition().x*box2d.scale;
+			game.panTo(heroX);
+
+			//Y esperar hasta que dejad e moverse o está fuera de los límites
+			if(!game.currentHero.IsAwake() || heroX<0 || heroX >game.currentLevel.foregroundImage.width ){
+				// Luego borra el viejo héroe
+				box2d.world.DestroyBody(game.currentHero);
+				game.currentHero = undefined;
+				// Y carga el siguiente héroe
+				game.mode = "load-next-hero";
+			}
         }
-        game.offsetLeft++;
+
+        if(game.mode=="level-success" || game.mode=="level-failure"){
+            if(game.panTo(0)){
+                game.ended = true;
+                game.showEndingScreen();
+            }
+        }
     },
 
     animate:function(){
@@ -536,18 +668,152 @@ var game = {
         game.handlePanning();
 
         //Anima los personajes
+        var currentTime = new Date().getTime();
+			var timeStep;
+			if (game.lastUpdateTime){
+				timeStep = (currentTime - game.lastUpdateTime)/1000;
+				if(timeStep >2/60){
+					timeStep = 2/60
+				}
+				box2d.step(timeStep);
+			}
+		    game.lastUpdateTime = currentTime;
 
+        
         //Dibuja el fondo con desplazamiento (parallax scrolling)
         game.context.drawImage(game.currentLevel.backgroundImage,game.offsetLeft/4,0,640,480,0,0,640,480);
-        game.context.drawImage(game.currentLevel.foregroundImage,game.offsetLeft,0,640,480,0,0,640,480);
+		game.context.drawImage(game.currentLevel.foregroundImage,game.offsetLeft,0,640,480,0,0,640,480);
         
         // Dibuja la honda
 
         game.context.drawImage(game.slingshotImage,game.slingshotX-game.offsetLeft,game.slingshotY);
+
+        // Dibuja todos los cuerpos
+        game.drawAllBodies();
+
+        // Dibujar la banda cuando estamos disparando un héroe
+        if(game.mode == "wait-for-firing" || game.mode == "firing"){
+			game.drawSlingshotBand();
+        }
+        
+        // Dibuja el frente de la honda
         game.context.drawImage(game.slingshotFrontImage,game.slingshotX-game.offsetLeft,game.slingshotY);
 
         if(!game.ended){
             game.animationFrame = window.requestAnimationFrame(game.animate, game.canvas);
         }
-    }
+    },
+
+    drawAllBodies:function(){
+        box2d.world.DrawDebugData();
+        for (var body = box2d.world.GetBodyList(); body; body = body.GetNext()) {
+			var entity = body.GetUserData();
+
+			if(entity){
+				var entityX = body.GetPosition().x*box2d.scale;
+				if(entityX<0|| entityX>game.currentLevel.foregroundImage.width||(entity.health && entity.health <0)){
+					box2d.world.DestroyBody(body);
+					if (entity.type=="villain"){
+						game.score += entity.calories;
+						$('#score').html('Score: '+game.score);
+					}
+					if (entity.breakSound){
+						entity.breakSound.play();
+					}
+				} else {
+					entities.draw(entity,body.GetPosition(),body.GetAngle())
+				}
+			}
+		}
+    },
+
+    countHeroesAndVillains:function(){
+        game.heroes = [];
+		game.villains = [];
+		for (var body = box2d.world.GetBodyList(); body; body = body.GetNext()) {
+			var entity = body.GetUserData();
+			if(entity){
+				if(entity.type == "hero"){
+					game.heroes.push(body);
+				} else if (entity.type =="villain"){
+					game.villains.push(body);
+				}
+			}
+		}
+    },
+
+    mouseOnCurrentHero:function(){
+		if(!game.currentHero){
+			return false;
+		}
+		var position = game.currentHero.GetPosition();
+		var distanceSquared = Math.pow(position.x*box2d.scale - mouse.x-game.offsetLeft,2) + Math.pow(position.y*box2d.scale-mouse.y,2);
+		var radiusSquared = Math.pow(game.currentHero.GetUserData().radius,2);
+		return (distanceSquared<= radiusSquared);
+    },
+    
+    showEndingScreen:function(){
+        //game.stopBackgroundMusic();
+        if (game.mode=="level-success"){
+            if(game.currentLevel.number<levels.data.length-1){
+                $('#endingmessage').html('Level Complete. Well Done!!!');
+                $("#playnextlevel").show();
+            } else {
+                $('#endingmessage').html('All Levels Complete. Well Done!!!');
+                $("#playnextlevel").hide();
+            }
+        } else if (game.mode=="level-failure"){
+            $('#endingmessage').html('Failed. Play Again?');
+            $("#playnextlevel").hide();
+        }
+
+        $('#endingscreen').show();
+    },
+
+    restartLevel:function(){
+		window.cancelAnimationFrame(game.animationFrame);
+		game.lastUpdateTime = undefined;
+		levels.load(game.currentLevel.number);
+    },
+
+    startNextLevel:function(){
+		window.cancelAnimationFrame(game.animationFrame);
+		game.lastUpdateTime = undefined;
+		levels.load(game.currentLevel.number+1);
+	},
+    
+    drawSlingshotBand:function(){
+		game.context.strokeStyle = "rgb(68,31,11)"; // Color marrón oscuro
+		game.context.lineWidth = 6; // Dibuja una linea gruesa
+
+		// Utilizar el ángulo y el radio del héroe para calcular el centro del héroe
+		var radius = game.currentHero.GetUserData().radius;
+		var heroX = game.currentHero.GetPosition().x*box2d.scale;
+		var heroY = game.currentHero.GetPosition().y*box2d.scale;
+		var angle = Math.atan2(game.slingshotY+25-heroY,game.slingshotX+50-heroX);
+
+		var heroFarEdgeX = heroX - radius * Math.cos(angle);
+		var heroFarEdgeY = heroY - radius * Math.sin(angle);
+
+
+
+		game.context.beginPath();
+		// Iniciar la línea desde la parte superior de la honda (la parte trasera)
+		game.context.moveTo(game.slingshotX+50-game.offsetLeft, game.slingshotY+25);
+
+		// Dibuja línea al centro del héroe
+		game.context.lineTo(heroX-game.offsetLeft,heroY);
+		game.context.stroke();
+
+		// Dibuja el héroe en la banda posterior
+		entities.draw(game.currentHero.GetUserData(),game.currentHero.GetPosition(),game.currentHero.GetAngle());
+
+		game.context.beginPath();
+		// Mover al borde del héroe más alejado de la parte superior de la honda
+		game.context.moveTo(heroFarEdgeX-game.offsetLeft,heroFarEdgeY);
+
+		// Dibujar línea de regreso a la parte superior de la honda (el lado frontal)
+		game.context.lineTo(game.slingshotX-game.offsetLeft +10,game.slingshotY+30)
+		game.context.stroke();
+	},
 };
