@@ -254,7 +254,7 @@ var entities = {
 				entity.fullHealth = definition.fullHealth;
 				entity.shape = "rectangle";
 				entity.sprite = loader.loadImage("images/entities/"+entity.name+".png");
-				//entity.breakSound = game.breakSound[entity.name];
+				entity.breakSound = game.breakSound[entity.name];
 				box2d.createRectangle(entity,definition);
 				break;
 			case "ground": // Rectangulos simples
@@ -350,6 +350,15 @@ var box2d = {
 				if (entity2.health){
 					entity2.health -= impulseAlongNormal;
 				}
+                
+                //Si los objetos tienen sonido de rebote, reproducirlos
+                if (entity1.bounceSound) {
+                    entity1.bounceSound.play();
+                }
+                
+                if (entity2.bounceSound) {
+                    entity2.bounceSound.play();
+                }
 			}
 		};
 		box2d.world.SetContactListener(listener);
@@ -517,6 +526,28 @@ var game = {
         game.context = game.canvas.getContext('2d');
     },
     
+    startBackgroundMusic:function(){
+		var toggleImage = $("#togglemusic")[0];
+		game.backgroundMusic.play();
+		toggleImage.src="images/icons/sound.png";
+	},
+	stopBackgroundMusic:function(){
+		var toggleImage = $("#togglemusic")[0];
+		toggleImage.src="images/icons/nosound.png";
+		game.backgroundMusic.pause();
+		game.backgroundMusic.currentTime = 0; // Ir al comienzo de la cancion
+	},
+	toggleBackgroundMusic:function(){
+		var toggleImage = $("#togglemusic")[0];
+		if(game.backgroundMusic.paused){
+			game.backgroundMusic.play();
+			toggleImage.src="images/icons/sound.png";
+		} else {
+			game.backgroundMusic.pause();
+			$("#togglemusic")[0].src="images/icons/nosound.png";
+		}
+	},
+    
     showLevelScreen: function () {
         $('.gamelayer').hide();
 		$('#levelselectscreen').show('slow');
@@ -633,7 +664,7 @@ var game = {
 				}
             } else {
 				game.mode = "fired";
-				//game.slingshotReleasedSound.play();
+				game.slingshotReleasedSound.play();
 				var impulseScaleFactor = 0.75;
 
 				// Coordenadas del centro de la honda (donde la banda está atada a la honda)
@@ -714,6 +745,8 @@ var game = {
 
     drawAllBodies:function(){
         box2d.world.DrawDebugData();
+        
+        //Iterar a traves de todos los cuerpos y dibujarlos en el lienzo del juego
         for (var body = box2d.world.GetBodyList(); body; body = body.GetNext()) {
 			var entity = body.GetUserData();
 
