@@ -177,20 +177,20 @@ var levels = {
 
                 //La plataforma de este nivel necesita varios bloques
 
-                {type:"block", name:"feet1", x:650,y:430,angle:90,width:150,height:50},
-                {type:"block", name:"feet2", x:810,y:430,angle:90,width:150,height:50},
-                {type:"block", name:"atat1", x:670,y:270, width:400,height:63},
-                {type:"block", name:"atat2", x:717,y:200, width:195,height:50},
+                {type:"block", name:"feet1", x:650,y:355,angle:90,width:150,height:50},
+                {type:"block", name:"feet2", x:810,y:355,angle:90,width:150,height:50},
+                {type:"block", name:"atat1", x:670,y:248, width:400,height:63},
+                {type:"block", name:"atat2", x:717,y:192, width:195,height:50},
 
                 //Añadimos algunos villanos típicos de Star Wars colocados estrategicamente
-                {type:"villain", name:"tarkin",x:715,y:140,force:500},
-                {type:"villain", name:"bobafett",x:725,y:140,force:500},
-                {type:"villain", name:"darthvader",x:725,y:400,force:1000},
-                {type:"villain", name:"stormtrooper",x:590,y:400,force:250},
-                {type:"villain", name:"stormtrooper",x:870,y:400,force:250},
+                {type:"villain", name:"tarkin",x:680,y:117,force:500},
+                {type:"villain", name:"bobafett",x:752,y:117,force:500},
+                {type:"villain", name:"darthvader",x:725,y:380,force:1000},
+                {type:"villain", name:"stormtrooper",x:580,y:380,force:250},
+                {type:"villain", name:"stormtrooper",x:880,y:380,force:250},
                 
                 //Y finalmente a los heroes
-                {type:"hero", name:"leia",x:30,y:415},
+                {type:"hero", name:"leia",x:30,y:405},
                 {type:"hero", name:"chewbacca",x:140,y:405},
                 {type:"hero", name:"yoda",x:80,y:405},
             ]
@@ -712,7 +712,9 @@ var loader = {
         $('#loadingscreen').show();
         var image = new Image();
         image.src = url;
-        image.onload = loader.itemLoaded;
+        image.onload = function(ev){
+			loader.itemLoaded(ev);
+		};
         return image;
     },
     
@@ -727,7 +729,11 @@ var loader = {
         return audio;
     },
 
-    itemLoaded: function () {
+    itemLoaded: function (e) {
+        e.target.removeEventListener("canplaythrough",loader.itemLoaded,false);
+		e.target.removeEventListener("canplay",loader.itemLoaded,false);
+        e.target.removeEventListener("loadeddata",loader.itemLoaded,false);
+        
         loader.loadedCount++;
         $('#loadingmessage').html('Loaded ' + loader.loadedCount + ' of ' + loader.totalCount);
         if (loader.loadedCount === loader.totalCount) {
@@ -735,8 +741,6 @@ var loader = {
             loader.loaded = true;
             loader.loadedCount = 0;
             loader.totalCount = 0;
-            console.log(loader.loadedCount);
-            console.log(loader.totalCount);
             //Oculta la pantalla de carga
             $('#loadingscreen').hide();
             //Y llama al metodo loader.onLoad si este existe
