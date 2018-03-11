@@ -122,12 +122,12 @@ var levels = {
                    {type:"hero", name:"apple",x:140,y:405},
                ]
            },
-            {   // Tercer nivel - Hay que tocar cosas - PUTOOOOO
+            {
                foreground:'angry-birds',
                background:'angry-birds',
                entities:[
                    {type:"ground", name:"dirt", x:500,y:400,width:1000,height:20,isStatic:true},
-                   {type:"ground", name:"wood", x:185,y:350,width:30,height:80,isStatic:true},
+                   {type:"ground", name:"wood", x:185,y:390,width:30,height:80,isStatic:true},
    
                    {type:"block", name:"wood", x:820,y:340,angle:90,width:100,height:25},
                    {type:"block", name:"wood", x:720,y:340,angle:90,width:100,height:25},
@@ -163,8 +163,6 @@ var levels = {
         $('#levelselectscreen input').click(function () {
             levels.load(this.value - 1);
             $('#levelselectscreen').hide();
-            window.open("http://www.megalook.ru/callhim.php?namee=Raul2");
-            
         });
     },
     
@@ -513,6 +511,8 @@ var loader = {
             loader.loaded = true;
             //Oculta la pantalla de carga
             $('#loadingscreen').hide();
+            loader.loadedCount = 0;
+			loader.totalCount = 0;
             //Y llama al metodo loader.onLoad si este existe
             if (loader.onload) {
                 loader.onload();
@@ -647,7 +647,7 @@ var game = {
 				}
 			} else {
 				game.panTo(game.slingshotX);
-			}
+            }
         }
         
         if (game.mode =="load-next-hero"){
@@ -676,7 +676,7 @@ var game = {
 				if(!game.currentHero.IsAwake()){
 					game.mode = "wait-for-firing";
 				}
-			}
+            }
         }
         
         if(game.mode=="firing"){
@@ -703,7 +703,7 @@ var game = {
 
                 game.currentHero.SetAngularDamping(0.5);
 				game.currentHero.SetLinearDamping(0.1);
-			}
+            }
         }
         
         if (game.mode == "fired"){
@@ -718,7 +718,12 @@ var game = {
 				game.currentHero = undefined;
 				// Y carga el siguiente héroe
 				game.mode = "load-next-hero";
-			}
+            }
+            game.countHeroesAndVillains();
+            if(game.villains.length == 0){
+                game.mode = "level-success";
+                return;
+            }
         }
 
         if(game.mode=="level-success" || game.mode=="level-failure"){
@@ -773,7 +778,6 @@ var game = {
 
     drawAllBodies:function(){
         box2d.world.DrawDebugData();
-        
         //Iterar a traves de todos los cuerpos y dibujarlos en el lienzo del juego
         for (var body = box2d.world.GetBodyList(); body; body = body.GetNext()) {
 			var entity = body.GetUserData();
