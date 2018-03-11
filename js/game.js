@@ -53,7 +53,7 @@ var mouse = {
         
         mouse.x = ev.pageX - offset.left;
         mouse.y = ev.pageY - offset.top;
-        
+
         if(mouse.down) {
             mouse.dragging = true;
         }
@@ -165,7 +165,36 @@ var levels = {
                    {type:"hero", name:"mario",x:140,y:405},
                    
                ]
-           }
+           },
+
+           {   // Star Wars Level
+            sound:"starwars",
+            foreground:'starwars2-foreground',
+            background:'starwars-background',
+            entities:[
+                {type:"ground", name:"dirt", x:500,y:440,width:1000,height:20,isStatic:true},
+                {type:"ground", name:"wood", x:185,y:390,width:30,height:80,isStatic:true},
+
+                //La plataforma de este nivel necesita varios bloques
+
+                {type:"block", name:"feet1", x:650,y:430,angle:90,width:150,height:50},
+                {type:"block", name:"feet2", x:810,y:430,angle:90,width:150,height:50},
+                {type:"block", name:"atat1", x:670,y:270, width:400,height:63},
+                {type:"block", name:"atat2", x:717,y:200, width:195,height:50},
+
+                //Añadimos algunos villanos típicos de Star Wars colocados estrategicamente
+                {type:"villain", name:"tarkin",x:715,y:140,force:500},
+                {type:"villain", name:"bobafett",x:725,y:140,force:500},
+                {type:"villain", name:"darthvader",x:725,y:400,force:1000},
+                {type:"villain", name:"stormtrooper",x:590,y:400,force:250},
+                {type:"villain", name:"stormtrooper",x:870,y:400,force:250},
+                
+                //Y finalmente a los heroes
+                {type:"hero", name:"leia",x:30,y:415},
+                {type:"hero", name:"chewbacca",x:140,y:405},
+                {type:"hero", name:"yoda",x:80,y:405},
+            ]
+        },
        ],
     //Inicializa la panttalla de seleccion de nivel
     init: function () {
@@ -186,7 +215,8 @@ var levels = {
     
     //carga todos los datos e imagenes para un nivel especifico
     load: function (number) {
-
+        //Pausar si había música anterior
+        game.stopBackgroundMusic();
         //Declarar un nuevo objeto de nivel actual
         box2d.init();
         //declarar un nuevo objeto del nivel actual
@@ -202,7 +232,7 @@ var levels = {
         game.slingshotImage = loader.loadImage("images/slingshot.png");
         game.slingshotFrontImage = loader.loadImage("images/slingshot-front.png");
         //CAMBIOOO
-        game.backgroundMusic = loader.loadSound('audio/'+level.sound);
+        if(level.sound) game.backgroundMusic = loader.loadSound('audio/'+level.sound);
         
         //Cargar todas las entidades
         for(var i = level.entities.length -1; i >= 0; i--){
@@ -226,13 +256,37 @@ var entities = {
 			density:2.4,
 			friction:0.4,
 			restitution:0.15,
+        },
+        "feet1":{
+			fullHealth:2000,
+			density:2.4,
+			friction:0.4,
+			restitution:0.15,
+        },
+        "feet2":{
+			fullHealth:2000,
+			density:2.4,
+			friction:0.4,
+			restitution:0.15,
 		},
 		"wood":{
 			fullHealth:500,
 			density:0.7,
 			friction:0.4,
 			restitution:0.4,
-		},
+        },
+        "atat1":{
+			fullHealth:2000,
+			density:2.0,
+			friction:0.4,
+			restitution:0.4,
+        },
+        "atat2":{
+			fullHealth:2000,
+			density:0.7,
+			friction:0.4,
+			restitution:0.4,
+        },
 		"dirt":{
 			density:3.0,
 			friction:1.5,
@@ -263,7 +317,43 @@ var entities = {
 			density:1,
 			friction:0.5,
 			restitution:0.6,
-		},
+        },
+        "bobafett":{
+            shape:"rectangle",
+			fullHealth:200,
+			width:87,
+            height:100,
+			density:1,
+			friction:0.5,
+			restitution:0.6,
+        },
+        "darthvader":{
+            shape:"rectangle",
+			fullHealth:200,
+			width:63,
+            height:100,
+			density:1,
+			friction:0.5,
+			restitution:0.6,
+        },
+        "stormtrooper":{
+            shape:"rectangle",
+			fullHealth:50,
+			width:72,
+            height:100,
+			density:1,
+			friction:0.5,
+			restitution:0.6,
+        },
+        "tarkin":{
+            shape:"rectangle",
+			fullHealth:200,
+			width:55,
+            height:100,
+			density:1,
+			friction:0.5,
+			restitution:0.6,
+        },
         "bowser":{
 			shape:"circle",
 			fullHealth:40,
@@ -332,7 +422,28 @@ var entities = {
 			density:2.0,
 			friction:0.5,
 			restitution:0.4,
-		},
+        },
+        "leia":{
+			shape:"circle",
+			radius:25,
+			density:1.5,
+			friction:0.5,
+			restitution:0.4,
+        },
+        "yoda":{
+			shape:"circle",
+			radius:25,
+			density:1.5,
+			friction:0.5,
+			restitution:0.4,
+        },
+        "chewbacca":{
+			shape:"circle",
+			radius:25,
+			density:1.5,
+			friction:0.5,
+			restitution:0.4,
+        },
         "mario":{
 			shape:"circle",
 			radius:25,
@@ -622,10 +733,12 @@ var loader = {
         if (loader.loadedCount === loader.totalCount) {
             //El loader ha cargado completamente
             loader.loaded = true;
+            loader.loadedCount = 0;
+            loader.totalCount = 0;
+            console.log(loader.loadedCount);
+            console.log(loader.totalCount);
             //Oculta la pantalla de carga
             $('#loadingscreen').hide();
-            loader.loadedCount = 0;
-			loader.totalCount = 0;
             //Y llama al metodo loader.onLoad si este existe
             if (loader.onload) {
                 loader.onload();
@@ -648,8 +761,8 @@ var game = {
         mouse.init();
 
         // Cargar todos los efectos de sonido y música de fondo
-        //CAMBIOOOO
-        //game.backgroundMusic = loader.loadSound('audio/gurdonark-kindergarten');
+
+        game.backgroundMusic = loader.loadSound('audio/gurdonark-kindergarten');
 
 		game.slingshotReleasedSound = loader.loadSound("audio/released");
 		game.bounceSound = loader.loadSound('audio/bounce');
@@ -703,6 +816,7 @@ var game = {
         $('#gamecanvas').show();
         $('#scorescreen').show();
 
+        game.startBackgroundMusic();
         game.mode = "intro";
         game.offsetLeft = 0;
         game.ended = false;
@@ -900,7 +1014,7 @@ var game = {
 				if(entityX<0|| entityX>game.currentLevel.foregroundImage.width||(entity.health && entity.health <0)){
 					box2d.world.DestroyBody(body);
 					if (entity.type=="villain"){
-						game.score += entity.calories;
+						game.score += entity.calories ? entity.calories : entity.force;
 						$('#score').html('Score: '+game.score);
 					}
 					if (entity.breakSound){
@@ -939,7 +1053,7 @@ var game = {
     },
     
     showEndingScreen:function(){
-        //game.stopBackgroundMusic();
+        game.stopBackgroundMusic();
         if (game.mode=="level-success"){
             if(game.currentLevel.number<levels.data.length-1){
                 $('#endingmessage').html('Level Complete. Well Done!!!');
