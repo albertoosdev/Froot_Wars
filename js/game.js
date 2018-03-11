@@ -78,6 +78,7 @@ var levels = {
     //Nivel de datos
     data:[
         {// Primer nivel
+           sound: 'gurdonark-kindergarten',
            foreground:'desert-foreground',
            background:'clouds-background',
            entities:[
@@ -97,6 +98,7 @@ var levels = {
            ]
         },
            {   // Segundo nivel
+               sound: 'gurdonark-kindergarten',
                foreground:'desert-foreground',
                background:'clouds-background',
                entities:[
@@ -123,33 +125,50 @@ var levels = {
                ]
            },
             {
-               foreground:'angry-birds',
-               background:'angry-birds',
+                sound: 'mario',
+               foreground:'mario-background',
+               background:'mario-background',
                entities:[
-                   {type:"ground", name:"dirt", x:500,y:400,width:1000,height:20,isStatic:true},
+                   {type:"ground", name:"dirt", x:500,y:440,width:1000,height:20,isStatic:true},
                    {type:"ground", name:"wood", x:185,y:390,width:30,height:80,isStatic:true},
    
-                   {type:"block", name:"wood", x:820,y:340,angle:90,width:100,height:25},
-                   {type:"block", name:"wood", x:720,y:340,angle:90,width:100,height:25},
-                   {type:"block", name:"wood", x:620,y:340,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:670,y:277.5,width:100,height:25},
-                   {type:"block", name:"glass", x:770,y:277.5,width:100,height:25},
+                   //Primer piso
+                   {type:"block", name:"pipe", x:820,y:380,width:50,height:100},
+                   {type:"block", name:"glass", x:720,y:380,angle:90,width:100,height:25},
+                   {type:"block", name:"pipe", x:620,y:380,width:50,height:100},
+                   {type:"block", name:"glass", x:670,y:317.5,width:100,height:25},
+                   {type:"block", name:"glass", x:770,y:317.5,width:100,height:25},
    
-                   {type:"block", name:"glass", x:670,y:215,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:770,y:215,angle:90,width:100,height:25},
-                   {type:"block", name:"wood", x:720,y:152.5,width:100,height:25},
+                   //Segundo piso
+                   {type:"block", name:"boxes", x:700,y:200,width:170,height:60,isStatic:true},
+                   //{type:"block", name:"glass", x:700,y:200,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:700,y:200,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:700,y:75,width:100,height:25},
    
-                   {type:"villain", name:"burger",x:715,y:115,calories:590},
-                   {type:"villain", name:"fries",x:670,y:365,calories:420},
-                   {type:"villain", name:"sodacan",x:765,y:360,calories:150},
+                   //Columna final
+                   {type:"block", name:"box", x:900,y:390,width:50,height:50},
+                   {type:"block", name:"box", x:900,y:340,width:50,height:50},
+                   {type:"block", name:"box", x:900,y:290,width:50,height:50},
+                   {type:"block", name:"box", x:900,y:240,width:50,height:50},
+                   
+                   
+                   {type:"villain", name:"bowser",x:700,y:50,calories:590},
+                   {type:"villain", name:"wario",x:670,y:405,calories:420},
+                   {type:"villain", name:"boo",x:765,y:400,calories:150},
+                   {type:"villain", name:"goomba",x:750,y:175,calories:150},
+                   {type:"villain", name:"donkey-kong",x:900,y:190,calories:150},
+                   {type:"villain", name:"koopa",x:745,y:317,calories:150},
    
-                   {type:"hero", name:"strawberry",x:30,y:375},
-                   {type:"hero", name:"orange",x:80,y:365},
-                   {type:"hero", name:"apple",x:140,y:365},
+                   {type:"hero", name:"yoshi",x:30,y:405},
+                   {type:"hero", name:"toad",x:60,y:405},
+                   {type:"hero", name:"luigi",x:110,y:405},
+                   {type:"hero", name:"mario",x:140,y:405},
+                   
                ]
            },
 
            {   // Star Wars Level
+            sound:"starwars",
             foreground:'starwars2-foreground',
             background:'starwars-background',
             entities:[
@@ -196,7 +215,8 @@ var levels = {
     
     //carga todos los datos e imagenes para un nivel especifico
     load: function (number) {
-
+        //Pausar si había música anterior
+        game.stopBackgroundMusic();
         //Declarar un nuevo objeto de nivel actual
         box2d.init();
         //declarar un nuevo objeto del nivel actual
@@ -211,6 +231,8 @@ var levels = {
         game.currentLevel.foregroundImage = loader.loadImage("images/backgrounds/"+level.foreground+".png");
         game.slingshotImage = loader.loadImage("images/slingshot.png");
         game.slingshotFrontImage = loader.loadImage("images/slingshot-front.png");
+        //CAMBIOOO
+        if(level.sound) game.backgroundMusic = loader.loadSound('audio/'+level.sound);
         
         //Cargar todas las entidades
         for(var i = level.entities.length -1; i >= 0; i--){
@@ -332,6 +354,54 @@ var entities = {
 			friction:0.5,
 			restitution:0.6,
         },
+        "bowser":{
+			shape:"circle",
+			fullHealth:40,
+			radius:25,
+			density:1,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "koopa":{
+			shape:"circle",
+			fullHealth:40,
+			radius:25,
+			density:1,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "boo":{
+			shape:"circle",
+			fullHealth:40,
+			radius:25,
+			density:1,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "wario":{
+			shape:"circle",
+			fullHealth:40,
+			radius:25,
+			density:1,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "goomba":{
+			shape:"circle",
+			fullHealth:40,
+			radius:25,
+			density:1,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "donkey-kong":{
+			shape:"circle",
+			fullHealth:40,
+			radius:25,
+			density:1,
+			friction:0.5,
+			restitution:0.4,
+		},
 		"apple":{
 			shape:"circle",
 			radius:25,
@@ -373,7 +443,52 @@ var entities = {
 			density:1.5,
 			friction:0.5,
 			restitution:0.4,
-        }
+        },
+        "mario":{
+			shape:"circle",
+			radius:25,
+			density:2.0,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "toad":{
+			shape:"circle",
+			radius:25,
+			density:2.0,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "luigi":{
+			shape:"circle",
+			radius:25,
+			density:2.0,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "yoshi":{
+			shape:"circle",
+			radius:25,
+			density:2.0,
+			friction:0.5,
+			restitution:0.4,
+		},
+        "pipe":{
+			fullHealth:500,
+			density:2.4,
+			friction:0.4,
+			restitution:0.15,
+		},
+        "boxes":{
+			density:3.0,
+			friction:1.5,
+			restitution:0.2,
+		},
+        "box":{
+			fullHealth:500,
+			density:0.7,
+			friction:0.4,
+			restitution:0.4,
+		},
     },
 
     //tomar la entidad, crear un cuerpo box2d y añadirlo al mundo
@@ -618,10 +733,12 @@ var loader = {
         if (loader.loadedCount === loader.totalCount) {
             //El loader ha cargado completamente
             loader.loaded = true;
+            loader.loadedCount = 0;
+            loader.totalCount = 0;
+            console.log(loader.loadedCount);
+            console.log(loader.totalCount);
             //Oculta la pantalla de carga
             $('#loadingscreen').hide();
-            loader.loadedCount = 0;
-			loader.totalCount = 0;
             //Y llama al metodo loader.onLoad si este existe
             if (loader.onload) {
                 loader.onload();
@@ -699,6 +816,7 @@ var game = {
         $('#gamecanvas').show();
         $('#scorescreen').show();
 
+        game.startBackgroundMusic();
         game.mode = "intro";
         game.offsetLeft = 0;
         game.ended = false;
@@ -935,7 +1053,7 @@ var game = {
     },
     
     showEndingScreen:function(){
-        //game.stopBackgroundMusic();
+        game.stopBackgroundMusic();
         if (game.mode=="level-success"){
             if(game.currentLevel.number<levels.data.length-1){
                 $('#endingmessage').html('Level Complete. Well Done!!!');
