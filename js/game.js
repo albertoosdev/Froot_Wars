@@ -132,42 +132,42 @@ var levels = {
                    {type:"ground", name:"dirt", x:500,y:440,width:1000,height:20,isStatic:true},
                    {type:"ground", name:"wood", x:185,y:390,width:30,height:80,isStatic:true},
    
-                   //Primer piso
-                   {type:"block", name:"pipe", x:820,y:380,width:50,height:100},
-                   {type:"block", name:"glass", x:720,y:380,angle:90,width:100,height:25},
-                   {type:"block", name:"pipe", x:620,y:380,width:50,height:100},
-                   {type:"block", name:"glass", x:670,y:317.5,width:100,height:25},
-                   {type:"block", name:"glass", x:770,y:317.5,width:100,height:25},
    
+                   //First Column
+                   {type:"block", name:"box", x:600,y:305,width:50,height:50},
+                   {type:"block", name:"box", x:600,y:405,width:50,height:50},
+                   {type:"block", name:"box", x:600,y:355,width:50,height:50},
+                   
+                   //In the middle
+                   {type:"block", name:"pipe", x:750,y:405,width:30,height:70},
+                   {type:"block", name:"glass", x:750,y:255,width:350,height:25},
+                   
+                   //Last Column
+                   {type:"block", name:"box", x:900,y:305,width:50,height:50},
+                   {type:"block", name:"box", x:900,y:405,width:50,height:50},
+                   {type:"block", name:"box", x:900,y:355,width:50,height:50},
+                   
                    //Segundo piso
-                   {type:"block", name:"boxes", x:700,y:200,width:170,height:60,isStatic:true},
-                   //{type:"block", name:"glass", x:700,y:200,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:700,y:200,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:700,y:75,width:100,height:25},
-   
-                   //Columna final
-                   {type:"block", name:"box", x:900,y:390,width:50,height:50},
-                   {type:"block", name:"box", x:900,y:340,width:50,height:50},
-                   {type:"block", name:"box", x:900,y:290,width:50,height:50},
-                   {type:"block", name:"box", x:900,y:240,width:50,height:50},
+                   {type:"block", name:"glass", x:600,y:230,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:900,y:230,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:750,y:220,angle:90,width:100,height:25},
+                   /*{type:"block", name:"glass", x:675,y:155,width:160,height:25},
+                   {type:"block", name:"glass", x:825,y:155,width:160,height:25},
+                  
+                   {type:"villain", name:"goomba",x:750,y:350,calories:150},
+                   {type:"villain", name:"boo",x:700,y:265,calories:150},
+                   {type:"villain", name:"koopa",x:800,y:265,calories:150},
+                   {type:"villain", name:"wario",x:750,y:140,calories:420},*/
                    
-                   
-                   {type:"villain", name:"bowser",x:700,y:50,calories:590},
-                   {type:"villain", name:"wario",x:670,y:405,calories:420},
-                   {type:"villain", name:"boo",x:765,y:400,calories:150},
-                   {type:"villain", name:"goomba",x:750,y:175,calories:150},
-                   {type:"villain", name:"donkey-kong",x:900,y:190,calories:150},
-                   {type:"villain", name:"koopa",x:745,y:317,calories:150},
    
                    {type:"hero", name:"yoshi",x:30,y:405},
-                   {type:"hero", name:"toad",x:60,y:405},
-                   {type:"hero", name:"luigi",x:110,y:405},
+                   {type:"hero", name:"luigi",x:80,y:405},
                    {type:"hero", name:"mario",x:140,y:405},
                    
                ]
            },
 
-           {   // Star Wars Level
+           {   // Star Wars Level 4
             sound:"starwars",
             foreground:'starwars2-foreground',
             background:'starwars-background',
@@ -195,6 +195,47 @@ var levels = {
                 {type:"hero", name:"yoda",x:80,y:405},
             ]
         },
+        {
+            // Nivel 5 - Mario
+                sound: 'mario',
+               foreground:'mario-background',
+               background:'mario-background',
+               entities:[
+                   {type:"ground", name:"dirt", x:500,y:440,width:1000,height:20,isStatic:true},
+                   {type:"ground", name:"wood", x:185,y:390,width:30,height:80,isStatic:true},
+   
+                   //Primer piso
+                   {type:"block", name:"pipe", x:820,y:380,width:50,height:100},
+                   {type:"block", name:"glass", x:720,y:380,angle:90,width:100,height:25},
+                   {type:"block", name:"pipe", x:620,y:380,width:50,height:100},
+                   {type:"block", name:"glass", x:670,y:317.5,width:100,height:25},
+                   {type:"block", name:"glass", x:770,y:317.5,width:100,height:25},
+   
+                   //Estructura arriba
+                   {type:"block", name:"boxes", x:700,y:200,width:170,height:60,isStatic:true},
+                   {type:"block", name:"glass", x:700,y:200,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:700,y:75,width:100,height:25},
+   
+                   //Columna final
+                   {type:"block", name:"box", x:900,y:390,width:50,height:50},
+                   {type:"block", name:"box", x:900,y:340,width:50,height:50},
+                   {type:"block", name:"box", x:900,y:290,width:50,height:50},
+                   {type:"block", name:"box", x:900,y:240,width:50,height:50},
+                   
+                   
+                   {type:"villain", name:"bowser",x:700,y:50,calories:590},
+                   {type:"villain", name:"wario",x:670,y:405,calories:420},
+                   {type:"villain", name:"boo",x:765,y:400,calories:150},
+                   {type:"villain", name:"goomba",x:750,y:175,calories:150},
+                   {type:"villain", name:"donkey-kong",x:900,y:190,calories:150},
+                   {type:"villain", name:"koopa",x:745,y:317,calories:150},
+   
+                   {type:"hero", name:"toad",x:60,y:405},
+                   {type:"hero", name:"luigi",x:110,y:405},
+                   {type:"hero", name:"mario",x:140,y:405},
+                   
+               ]
+           },
        ],
     //Inicializa la panttalla de seleccion de nivel
     init: function () {
@@ -231,7 +272,8 @@ var levels = {
         game.currentLevel.foregroundImage = loader.loadImage("images/backgrounds/"+level.foreground+".png");
         game.slingshotImage = loader.loadImage("images/slingshot.png");
         game.slingshotFrontImage = loader.loadImage("images/slingshot-front.png");
-        //CAMBIOOO
+        
+        //Cargar el audio de fondo de cada nivel
         if(level.sound) game.backgroundMusic = loader.loadSound('audio/'+level.sound);
         
         //Cargar todas las entidades
@@ -454,7 +496,7 @@ var entities = {
         "toad":{
 			shape:"circle",
 			radius:25,
-			density:2.0,
+			density:1.5,
 			friction:0.5,
 			restitution:0.4,
 		},
