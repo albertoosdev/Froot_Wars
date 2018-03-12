@@ -6,6 +6,7 @@
 		<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/Box2dWeb-2.1.a.3.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/game.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/test.js" type="text/javascript" charset="utf-8"></script>
 		<link href="style.css" rel="stylesheet" type="text/css" media="screen" charset="utf-8">
 	</head>
 
@@ -22,7 +23,7 @@
  
  			<div id="gamestartscreen" class="gamelayer">
  				<img src="images/icons/play.png" alt="Play Game" onclick="game.showLevelScreen();"><br>
- 				<img src="images/icons/settings.png" alt="Settings">
+ 				<img src="images/icons/settings.png" onclick="game.showSettingsScreen();" alt="Settings">
  			</div>
  
  			<div id="levelselectscreen" class="gamelayer">
@@ -30,7 +31,10 @@
  
  			<div id="loadingscreen" class="gamelayer">
  				<div id="loadingmessage"></div>
- 			</div>
+			 </div>
+			 
+			 <div id="settingsscreen" class="gamelayer">
+			 </div>
  
  			<div id="endingscreen" class="gamelayer">
  				<div>

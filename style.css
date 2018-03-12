@@ -42,6 +42,37 @@
     border:0;
 }
 
+#settingsscreen input.level{
+    margin: 20px;
+    cursor: pointer;
+    background: url(images/icons/level.png) no-repeat;
+    color: yellow;
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    border:0;
+}
+
+#settingsscreen p{
+    margin: 0px;
+    font: 20px Comic Sans MS;
+    text-shadow: 0 0 2px #000;
+	color:white;
+}
+
+#settingsscreen h1{
+    text-shadow: 0 0 2px #000;
+    color:white;
+    text-align: center;
+    margin:0px;
+}
+
+#settingsscreen div{
+    background:rgba(1,1,1,0.5);
+    width: 640px;
+    height: 480px;
+}
+
 /* Pantalla de carga */
 #loadingscreen {
     background: rgba(100, 100, 100, 0.3);

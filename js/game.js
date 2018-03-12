@@ -78,7 +78,7 @@ var levels = {
     //Nivel de datos
     data:[
         {// Primer nivel
-           sound: 'gurdonark-kindergarten',
+           sound: 'audio/gurdonark-kindergarten',
            foreground:'desert-foreground',
            background:'clouds-background',
            entities:[
@@ -98,7 +98,7 @@ var levels = {
            ]
         },
            {   // Segundo nivel
-               sound: 'gurdonark-kindergarten',
+               sound: 'audio/gurdonark-kindergarten',
                foreground:'desert-foreground',
                background:'clouds-background',
                entities:[
@@ -125,7 +125,7 @@ var levels = {
                ]
            },
             {
-                sound: 'mario',
+                sound: 'audio/mario',
                foreground:'mario-background',
                background:'mario-background',
                entities:[
@@ -168,7 +168,7 @@ var levels = {
            },
 
            {   // Star Wars Level 4
-            sound:"starwars",
+            sound:"audio/starwars",
             foreground:'starwars2-foreground',
             background:'starwars-background',
             entities:[
@@ -197,7 +197,7 @@ var levels = {
         },
         {
             // Nivel 5 - Mario
-                sound: 'mario',
+                sound: 'audio/mario',
                foreground:'mario-background',
                background:'mario-background',
                entities:[
@@ -274,7 +274,7 @@ var levels = {
         game.slingshotFrontImage = loader.loadImage("images/slingshot-front.png");
         
         //Cargar el audio de fondo de cada nivel
-        if(level.sound) game.backgroundMusic = loader.loadSound('audio/'+level.sound);
+        if(level.sound) game.backgroundMusic = loader.loadSound(level.sound);
         
         //Cargar todas las entidades
         for(var i = level.entities.length -1; i >= 0; i--){
@@ -798,6 +798,26 @@ var loader = {
     
 };
 
+var settings = {
+    init: function(){
+        var html = "<div>\n<h1> Selecciona la música de los niveles</h1>";
+        var i;
+        for (i = 0; i < levels.data.length; i++) {
+            var level = levels.data[i];
+            let levelSound = levels.data[i].sound.split('/');
+            html += `<p><input class="level" value="'${(i + 1)}'">  
+                ${levelSound[levelSound.length-1]} <input name="myFile" type="file" 
+                onchange="settings.selectSound(this.value)"></p>`;
+        };
+        html+="</div>";
+        $('#settingsscreen').html(html);        
+    },
+
+    selectSound: function(file){
+        alert(file);
+    }
+}
+
 var game = {
     //Comienza inicializando los objetos, precargando los assets y mostrando la pantalla de inicio
     init: function () {
@@ -805,6 +825,7 @@ var game = {
         levels.init();
         loader.init();
         mouse.init();
+        settings.init();
 
         // Cargar todos los efectos de sonido y música de fondo
 
@@ -851,6 +872,11 @@ var game = {
     showLevelScreen: function () {
         $('.gamelayer').hide();
 		$('#levelselectscreen').show('slow');
+    },
+
+    showSettingsScreen: function(){
+        $('.gamelayer').hide();
+        $('#settingsscreen').show();
     },
 
     mode:"intro",
