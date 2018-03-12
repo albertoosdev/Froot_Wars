@@ -139,8 +139,8 @@ var levels = {
                    {type:"block", name:"box", x:600,y:355,width:50,height:50},
                    
                    //In the middle
-                   {type:"block", name:"pipe", x:750,y:405,width:30,height:70},
-                   {type:"block", name:"glass", x:750,y:255,width:350,height:25},
+                   {type:"block", name:"pipe", x:750,y:395,width:30,height:70},
+                   {type:"block", name:"glass", x:750,y:267,width:350,height:25},
                    
                    //Last Column
                    {type:"block", name:"box", x:900,y:305,width:50,height:50},
@@ -148,16 +148,16 @@ var levels = {
                    {type:"block", name:"box", x:900,y:355,width:50,height:50},
                    
                    //Segundo piso
-                   {type:"block", name:"glass", x:600,y:230,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:900,y:230,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:750,y:220,angle:90,width:100,height:25},
-                   /*{type:"block", name:"glass", x:675,y:155,width:160,height:25},
-                   {type:"block", name:"glass", x:825,y:155,width:160,height:25},
+                   {type:"block", name:"glass", x:600,y:205,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:900,y:205,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:750,y:205,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:665,y:143,width:160,height:25},
+                   {type:"block", name:"glass", x:825,y:143,width:160,height:25},
                   
-                   {type:"villain", name:"goomba",x:750,y:350,calories:150},
-                   {type:"villain", name:"boo",x:700,y:265,calories:150},
-                   {type:"villain", name:"koopa",x:800,y:265,calories:150},
-                   {type:"villain", name:"wario",x:750,y:140,calories:420},*/
+                   {type:"villain", name:"goomba",x:750,y:335,calories:150},
+                   {type:"villain", name:"boo",x:700,y:230,calories:150},
+                   {type:"villain", name:"koopa",x:800,y:230,calories:150},
+                   {type:"villain", name:"wario",x:750,y:107,calories:420},
                    
    
                    {type:"hero", name:"yoshi",x:30,y:405},
