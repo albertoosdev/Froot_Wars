@@ -239,7 +239,7 @@ var levels = {
        ],
     //Inicializa la panttalla de seleccion de nivel
     init: function () {
-        var html = "";
+        var html = `<p id="returnButton" onclick="game.showGameStartScreen();"> <img src="images/icons/return.png">Return</p>`;
         var i;
         for (i = 0; i < levels.data.length; i++) {
             var level = levels.data[i];
@@ -766,7 +766,12 @@ var loader = {
         this.loaded = false;
         $('#loadingscreen').show();
         var audio = new Audio();
-        audio.src = url + loader.soundFileExtn;
+        //En caso de que el archivo este en formato binario se carga directamente, sino se añade la extensión para que lo coja del path
+        if(url.match('data:audio/') || url.match('data:video/')){
+            audio.src = url;
+        } else {
+            audio.src = url + loader.soundFileExtn;
+        }
         audio.addEventListener("canplaythrough", loader.itemLoaded, false);
         return audio;
     },
@@ -798,23 +803,45 @@ var loader = {
     
 };
 
+//Nuevo objeto para la pantalla de selección de música
 var settings = {
     init: function(){
-        var html = "<div>\n<h1> Selecciona la música de los niveles</h1>";
+        //Iniciamos el html añadiendo los botones, y los niveles con sus correspondientes canciones y el input para seleccionar una canción nueva
+        var html = `<div><p id="showLevelScreen" onclick="game.showGameStartScreen();"><img src="images/icons/return.png" style="cursor: pointer;">Return<h1> Selecciona la música de los niveles</h1></p>`;
         var i;
         for (i = 0; i < levels.data.length; i++) {
-            var level = levels.data[i];
+            let level = levels.data[i];
             let levelSound = levels.data[i].sound.split('/');
+            let song = level.songName ? level.songName : levelSound.pop();
             html += `<p><input class="level" value="'${(i + 1)}'">  
-                ${levelSound[levelSound.length-1]} <input name="myFile" type="file" 
-                onchange="settings.selectSound(this.value)"></p>`;
+                <span id="level${i}">${song} </span><input name="myFile" type="file" 
+                onchange="settings.selectSound(this, ${i})"></p>`;
         };
-        html+="</div>";
+        html+=`</div>`;
         $('#settingsscreen').html(html);        
     },
 
-    selectSound: function(file){
-        alert(file);
+    //Método para cambiar la canción de un nivel
+    selectSound: function(input, level){
+        var name = input.value.split('\\').pop();
+        var extension = name.split('.').pop();
+        //Solo se aceptan archivos con extensión mp3 u ogg
+        if(extension!=='mp3' && extension!=='ogg'){
+            return alert('Formato de archivo no permitido');
+        }
+        levels.data[level].songName = name.split('.')[0];
+        //Se carga el archivo de audio directamente a la propiedad sound del nivel
+        if(input.value){
+            if (input.files && input.files[0]) {
+              var reader = new FileReader();
+              reader.onload = function (e) {
+                levels.data[level].sound = e.target.result;
+              };
+              reader.readAsDataURL(input.files[0]);
+            }
+        }
+        //Cambia el nombre de la canción actual del nivel
+        $(`#level${level}`).html(levels.data[level].songName + ' ');
     }
 }
 
@@ -877,6 +904,14 @@ var game = {
     showSettingsScreen: function(){
         $('.gamelayer').hide();
         $('#settingsscreen').show();
+    },
+
+    //Función para mostrar la pagina principal
+    showGameStartScreen: function (){
+      //Oculta todos los elementos sobre la capa del juego
+      $('.gamelayer').hide();
+      //Convierte en visible el div de la página principal
+      $("#gamestartscreen").show();
     },
 
     mode:"intro",
