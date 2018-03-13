@@ -140,7 +140,7 @@ var levels = {
                    
                    //In the middle
                    {type:"block", name:"pipe", x:750,y:395,width:30,height:70},
-                   {type:"block", name:"glass", x:750,y:267,width:350,height:25},
+                   {type:"block", name:"wood", x:750,y:267.5,width:350,height:25},
                    
                    //Last Column
                    {type:"block", name:"box", x:900,y:305,width:50,height:50},
@@ -148,16 +148,15 @@ var levels = {
                    {type:"block", name:"box", x:900,y:355,width:50,height:50},
                    
                    //Segundo piso
-                   {type:"block", name:"glass", x:600,y:205,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:900,y:205,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:750,y:205,angle:90,width:100,height:25},
-                   {type:"block", name:"glass", x:665,y:143,width:160,height:25},
-                   {type:"block", name:"glass", x:825,y:143,width:160,height:25},
+                   
+                   {type:"block", name:"glass", x:600,y:200,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:900,y:204,angle:90,width:100,height:25},
+                   {type:"block", name:"glass", x:750,y:204,angle:90,width:100,height:25},
                   
                    {type:"villain", name:"goomba",x:750,y:335,calories:150},
                    {type:"villain", name:"boo",x:700,y:230,calories:150},
                    {type:"villain", name:"koopa",x:800,y:230,calories:150},
-                   {type:"villain", name:"wario",x:750,y:107,calories:420},
+                   {type:"villain", name:"wario",x:750,y:105,calories:420},
                    
    
                    {type:"hero", name:"yoshi",x:30,y:405},
@@ -275,7 +274,7 @@ var levels = {
         
         //Cargar el audio de fondo de cada nivel
         if(level.sound) game.backgroundMusic = loader.loadSound(level.sound);
-        
+        game.backgroundMusic.loop = true;
         //Cargar todas las entidades
         for(var i = level.entities.length -1; i >= 0; i--){
             var entity = level.entities[i];
